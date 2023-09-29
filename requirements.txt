@@ -1,0 +1,9 @@
+streamlit
+streamlit-lottie
+requests
+Pillow
+numpy
+opencv-python
+validators  
+geosky
+streamlit-extras
