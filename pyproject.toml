@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "rizz-ui"
+version = "0.1.0"
+description = "Rizz internal-use web app"
+authors = ["aryan-jain, elevate-pro"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.9.7 || >3.9.7,<4.0"
+streamlit = "^1.27.1"
+streamlit-lottie = "^0.0.5"
+streamlit-extras = "^0.3.2"
+streamlit-authenticator = "^0.2.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

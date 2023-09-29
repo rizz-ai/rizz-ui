@@ -1,9 +1,10 @@
 streamlit
-streamlit-lottie
-requests
-Pillow
-numpy
-opencv-python
-validators  
-geosky
-streamlit-extras
+streamlit-lottie        # animations
+requests                # http requests
+Pillow                  # display images
+numpy               
+opencv-python           # image processing
+validators              # url validation
+geosky                  # countries and cities
+streamlit-extras        # custom components
+streamlit-authenticator # authentication
