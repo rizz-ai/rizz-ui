@@ -7,6 +7,7 @@ import validators
 from geosky import geo_plug
 import json
 from streamlit_extras.no_default_selectbox import selectbox
+from streamlit_tags import st_tags
 
 st.set_page_config(page_title="Rizz.AI", page_icon=":tada:", layout="wide")
 
@@ -31,16 +32,9 @@ def is_valid_url(url_string: str) -> bool:
 
 lottie_coding = load_lottieurl("https://lottie.host/6d6192dd-22e8-4d51-9cd9-75b8c91e34b8/9HFYF0lywc.json")
 
-# Header
-with st.container():
-    st.subheader("Welcome to Rizz.ai")
-    st.title("this is shivali")
-    st.write("brand discovery made easy")
-    st.write("[Learn More >](https://google.com)")
-
 # Main
 with st.container():
-    st.write('---')
+    st.subheader("Welcome to Rizz.ai")
     left_column, right_column = st.columns(2)
     with left_column:
         st.header("what I do")
@@ -49,6 +43,7 @@ with st.container():
         st.write("[Learn More >](https://google.com)")
     with right_column:
         st_lottie(lottie_coding, height=300, key="coding")
+    st.write('---')
 
 with st.container():
     st.write("About the brand")
@@ -56,27 +51,43 @@ with st.container():
     with col1:
         title = st.text_input('Brand Name')
         street = st.text_input('Street Address')
+        st.write('##')
+        st.write("Let's talk about brand's price point")
     with col2:
         website = st.text_input('Website URL')
         if is_valid_url(website)==False:
             st.text("Please enter a valid web url")
         country = selectbox('Country', countries)
+        currency = selectbox('Currency', ('USD', 'INR', 'EURO', 'POUND'))
     with col3:
          instagram = st.text_input('Instagram Handle')
          if country==None:
              state = st.text_input('State')
          else:
             state = selectbox('State',statemap[country])
+         min_price = st.number_input('Minimum price')       
     with col4:
         followers = st.number_input('Follower count')
         if state==None:
              city = st.text_input('City')
         else:
             city = selectbox('City',json.loads(geo_plug.all_State_CityNames(state))[0][state] )
+        max_price = st.number_input('Maximum price')
 
-    currency = selectbox('Currency', ('USD', 'INR', 'EURO', 'POUND'))
-    min_price = st.number_input('Minimum price')
-    max_price = st.number_input('Maximum price')
+    collection_type = st.multiselect('What is the collection?', ['Indian', 'Indo-western', 'Western', 'East-Asian', 'African', 'Other'])
+    if 'Other' in collection_type:
+        other_collection_type = st_tags(label='Add a new collection type label:',
+        text='Press enter to add more',
+        value=[],
+        suggestions=[],
+        maxtags = 4,
+        key='1')
+
+    start_age, end_age = st.select_slider(
+    'What age group might this brand appeal to?',
+    options= [str(x) for x in range(0, 100+1) if (x) % 5 == 0],
+    value=('0', '100'))
+                    
 
     uploaded_files = st.file_uploader("Upload 5 favorite items from the brand", accept_multiple_files=True)
     for uploaded_file in uploaded_files:

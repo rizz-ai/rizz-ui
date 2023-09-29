@@ -7,3 +7,4 @@ opencv-python
 validators  
 geosky
 streamlit-extras
+streamlit-tags
