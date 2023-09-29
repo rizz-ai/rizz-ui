@@ -8,3 +8,4 @@ validators              # url validation
 geosky                  # countries and cities
 streamlit-extras        # custom components
 streamlit-authenticator # authentication
+streamlit-tags          # tags
