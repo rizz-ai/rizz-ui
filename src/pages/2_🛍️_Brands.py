@@ -1,6 +1,6 @@
 import json
 from http import HTTPStatus
-
+import io
 import pandas as pd
 import requests
 import streamlit as st
@@ -10,6 +10,7 @@ from streamlit_tags import st_tags
 
 from src import config
 from src.utils.currency import CURRENCIES, convert_currency
+from src.utils.products import PRODUCT_TYPES
 
 st.set_page_config(page_title="Brands", page_icon=":shopping_bags:", layout="centered")
 
@@ -124,7 +125,7 @@ def brands():
 
         price_grid = grid(2, 1)
 
-        price_grid.number_input(
+        min_price = price_grid.number_input(
             "Minimum Price",
             help="Enter the minimum price in local currency",
             key="min_price",
@@ -132,7 +133,7 @@ def brands():
             step=10,
         )
 
-        price_grid.number_input(
+        max_price = price_grid.number_input(
             "Maximum Price",
             help="Enter the maximum price in local currency",
             key="max_price",
@@ -140,7 +141,7 @@ def brands():
             step=10,
         )
 
-        price_grid.selectbox(
+        currency = price_grid.selectbox(
             "Currency",
             CURRENCIES,
             help="Select the currency",
@@ -190,11 +191,12 @@ def brands():
     with st.container():
         st.subheader("Occasions")
         st.markdown('''For what occasions/events will you choose outfits from this brand? 
-                E.g. winery, date, family dinner, day time events etc. Enter each event separately.''')
+                E.g. everyday, lounge, winery, date, airport, beach, vacation, europen vacation, family dinner, 
+                day time events etc. Enter each event separately.''')
 
         occasion = st_tags(label='',text='Type one event, press enter and then type next',
         value=[],
-        suggestions=['winery', 'office', 'date-night', 'date', 'family dinner', 'athletic', 'airport', 'everyday'],
+        suggestions=['winery', 'office', 'date-night', 'date', 'family dinner', 'athletic', 'airport', 'everyday', 'vacation', 'beach', 'resort'],
         maxtags = 10,
         key='2')
 
@@ -203,20 +205,13 @@ def brands():
         st.subheader("Shipping")
         ships_local = st.checkbox('Ships within country')
         if ships_local:
-            local_price_grid = grid([1,1,1])
-
-            local_price_grid.selectbox(
-                "Currency",
-                CURRENCIES,
-                help="Select the currency",
-                key="local_ship_currency",
-            )
+            st.markdown("If FREE for some states & not for others, enter 0 as min \n& highest cost as max shipping price")
+            local_price_grid = grid([1,1])
 
             local_price_grid.number_input(
                 "Minimum Price",
                 help="Enter the minimum price in local currency",
                 key="local_ship_min_price",
-                value=0,
                 step=10,
             )
 
@@ -224,7 +219,6 @@ def brands():
                 "Maximum Price",
                 help="Enter the maximum price in local currency",
                 key="local_ship_max_price",
-                value=0,
                 step=10,
             )
 
@@ -232,20 +226,12 @@ def brands():
 
         ships_international = st.checkbox('Offers international shipping')
         if ships_international:
-            intl_price_grid = grid([1,1,1])
-
-            intl_price_grid.selectbox(
-                "Currency",
-                CURRENCIES,
-                help="Select the currency",
-                key="intl_ship_currency",
-            )
+            intl_price_grid = grid([1,1])
 
             intl_price_grid.number_input(
                 "Minimum Price",
                 help="Enter the minimum price in local currency",
                 key="intl_ship_min_price",
-                value=0,
                 step=10,
             )
 
@@ -253,9 +239,64 @@ def brands():
                 "Maximum Price",
                 help="Enter the maximum price in local currency",
                 key="intl_ship_max_price",
-                value=0,
                 step=10,
             )
+    
+    with st.container():
+        uploads()
+
+def uploads():
+    st.header("Upload Images")
+
+    with st.container():
+        st.info(
+            "Please upload pictures of at least 5 products of the brand. You can select multiple files at once."
+        )
+
+        files = st.file_uploader(
+            "Upload 5 or more favorite items from the brand.",
+            accept_multiple_files=True,
+            type=["png", "jpg", "jpeg"]
+        )
+
+        if files:
+            st.session_state["images"] = files
+
+    products()
+
+
+def products():
+    st.header("Products")
+
+    with st.container():
+        if images := st.session_state.get("images"):
+            for image in images:
+                bytes_data = io.BytesIO(image.read())
+
+                img_col, form_col = st.columns(2)
+                img_name = image.name
+                st.caption(f"Name: {img_name}")
+                with img_col:
+                    st.image(bytes_data, use_column_width=True)
+
+                with form_col:
+                    product_name = st.text_input("Product Name", help="Enter the name of the product", key=f"{img_name}_product_name")
+                    product_type = st.multiselect('Product Type', PRODUCT_TYPES, key=f"{img_name}_product_type")
+                    if 'Other' in product_type:
+                        other_category = st_tags(label='Add a custom category:',
+                        text='Press enter to add more',
+                        value=[],
+                        suggestions=[],
+                        maxtags = 4,
+                        key=f"{img_name}_other_type")
+                    price = st.number_input("Product Price",help="Enter the price of the product", key=f"{img_name}_price")
+                    occasion = st.text_input("Where will you wear this to?", key=f"{img_name}_occasion")
+                    styling = st.text_input("How will you style it uniquely?", key=f"{img_name}_styling")
+                    
+
+                st.write("---")
+
+
 
 if __name__ == "__main__":
     brands()
